@@ -331,12 +331,14 @@ class NewJiraView(View):
                 key_url = jira_server.strip("/") + "/rest/api/latest/issue/" + issue_id + "/transitions?expand=transitions.fields"
                 response = jira._session.get(key_url).json()
                 logger.debug("Retrieved JIRA issue successfully")
-                open_key = close_key = None
+                open_key = under_review_key = close_key = None
                 for node in response["transitions"]:
                     if node["to"]["statusCategory"]["name"] == "To Do":
                         open_key = open_key or int(node["id"])
                     if node["to"]["statusCategory"]["name"] == "Done":
                         close_key = close_key or int(node["id"])
+                    if node["to"]["statusCategory"]["name"] == "In Progress":
+                        under_review_key = under_review_key or int(node["id"])
             except Exception as e:
                 logger.exception(e)  # already logged in jira_helper
                 messages.add_message(
@@ -372,6 +374,7 @@ class NewJiraView(View):
                 epic_name_id=epic_name,
                 open_status_key=open_key,
                 close_status_key=close_key,
+                under_review_status_key=under_review_key,
                 finding_text="",
                 default_issue_type=jform.cleaned_data.get("default_issue_type"),
                 finding_jira_sync=jform.cleaned_data.get("finding_jira_sync"))
