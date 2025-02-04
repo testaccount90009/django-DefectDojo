@@ -56,6 +56,7 @@ RESOLVED_STATUS = [
 OPEN_STATUS = [
     "Active",
     "Verified",
+    "Under Review"
 ]
 
 
